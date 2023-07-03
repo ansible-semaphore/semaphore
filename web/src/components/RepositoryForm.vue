@@ -13,7 +13,7 @@
     </v-alert>
 
     <v-text-field
-        v-model="item.name"
+        v-model.trim="item.name"
         label="Name"
         :rules="[v => !!v || 'Name is required']"
         required
@@ -21,7 +21,7 @@
     ></v-text-field>
 
     <v-text-field
-        v-model="item.git_url"
+        v-model.trim="item.git_url"
         label="URL or path"
         :rules="[
           v => !!v || 'Repository is required',
@@ -56,7 +56,7 @@
     </div>
 
     <v-text-field
-      v-model="item.git_branch"
+      v-model.trim="item.git_branch"
       label="Branch"
       :rules="[v => (!!v || type === 'local') || 'Branch is required']"
       required

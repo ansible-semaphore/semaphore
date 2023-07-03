@@ -44,9 +44,9 @@
     <v-data-table
       :headers="headers"
       :items="items"
-      hide-default-footer
-      class="mt-4"
       :footer-props="{ itemsPerPageOptions: [20] }"
+      :hide-default-footer="hideFooter"
+      class="mt-4"
     >
       <template v-slot:item.external="{ item }">
         <v-icon v-if="item.external">mdi-checkbox-marked</v-icon>
