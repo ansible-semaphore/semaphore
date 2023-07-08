@@ -1,23 +1,56 @@
 package api
 
 import (
+	"net/http"
+	"strings"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/ansible-semaphore/semaphore/api/helpers"
 	"github.com/ansible-semaphore/semaphore/db"
 	"github.com/ansible-semaphore/semaphore/util"
 	"github.com/gorilla/context"
-	"net/http"
-	"strings"
-	"time"
 )
+
+type authType int
+
+const (
+	authBearer authType = iota
+	authCookie
+	authExternal
+	authUnknown
+)
+
+var authCookieName = "semaphore"
+
+func determineAuthType(r *http.Request) authType {
+	if len(r.Header.Get("authorization")) > 0 && strings.Contains(r.Header.Get("authorization"), "bearer") {
+		return authBearer
+	}
+
+	if _, err := r.Cookie(authCookieName); err != nil {
+		return authCookie
+	}
+
+	if util.Config.ExternalAuth && len(r.Header.Get(util.Config.ExternalAuthHeader.Username)) > 0 {
+		return authExternal
+	}
+
+	return authUnknown
+}
 
 func authenticationHandler(w http.ResponseWriter, r *http.Request) bool {
 	var userID int
 
-	authHeader := strings.ToLower(r.Header.Get("authorization"))
+	authType := determineAuthType(r)
 
-	if len(authHeader) > 0 && strings.Contains(authHeader, "bearer") {
-		token, err := helpers.Store(r).GetAPIToken(strings.Replace(authHeader, "bearer ", "", 1))
+	var user db.User
+
+	switch authType {
+	case authBearer:
+		token, err := helpers.Store(r).GetAPIToken(
+			strings.Replace(
+				strings.ToLower(r.Header.Get("authorization")), "bearer ", "", 1))
 
 		if err != nil {
 			if err != db.ErrNotFound {
@@ -28,17 +61,23 @@ func authenticationHandler(w http.ResponseWriter, r *http.Request) bool {
 			return false
 		}
 
-		userID = token.UserID
-	} else {
+		user, err = fetchUser(helpers.Store(r), token.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return false
+		}
+
+		break
+	case authCookie:
 		// fetch session from cookie
-		cookie, err := r.Cookie("semaphore")
+		cookie, err := r.Cookie(authCookieName)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return false
 		}
 
 		value := make(map[string]interface{})
-		if err = util.Cookie.Decode("semaphore", cookie.Value, &value); err != nil {
+		if err = util.Cookie.Decode(authCookieName, cookie.Value, &value); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return false
 		}
@@ -78,14 +117,51 @@ func authenticationHandler(w http.ResponseWriter, r *http.Request) bool {
 			w.WriteHeader(http.StatusUnauthorized)
 			return false
 		}
-	}
 
-	user, err := helpers.Store(r).GetUser(userID)
-	if err != nil {
-		if err != db.ErrNotFound {
-			// internal error
-			log.Error(err)
+		user, err = fetchUser(helpers.Store(r), userID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return false
 		}
+
+		break
+	case authExternal:
+		username := strings.ToLower(r.Header.Get(util.Config.ExternalAuthHeader.Username))
+
+		// find user account
+		user, err := helpers.Store(r).GetUserByLoginOrEmail(username, username)
+		if err != nil {
+			if err != db.ErrNotFound {
+				log.Error(err)
+				w.WriteHeader(http.StatusUnauthorized)
+				return false
+			}
+
+			log.Debug(username + " does not exist yet, creating it")
+
+			externalAuthUser := db.UserWithPwd{
+				User: db.User{
+					Username: username,
+					Created:  time.Now(),
+					Name:     username,
+					Email:    username + "@example.org", // FIXME
+					External: true,
+					Alert:    false,
+				},
+			}
+
+			user, err = helpers.Store(r).CreateUser(externalAuthUser)
+			if err != nil {
+				log.Warn(externalAuthUser.User.Username + " is not created: " + err.Error())
+				w.WriteHeader(http.StatusBadRequest)
+				return false
+			}
+		}
+
+		userID = user.ID
+		break
+
+	case authUnknown:
 		w.WriteHeader(http.StatusUnauthorized)
 		return false
 	}
@@ -119,7 +195,7 @@ func authenticationWithStore(next http.Handler) http.Handler {
 		store := helpers.Store(r)
 
 		var ok bool
-		
+
 		db.StoreSession(store, r.URL.String(), func() {
 			ok = authenticationHandler(w, r)
 		})
@@ -128,4 +204,15 @@ func authenticationWithStore(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		}
 	})
+}
+
+func fetchUser(store db.Store, userID int) (db.User, error) {
+	user, err := store.GetUser(userID)
+	if err != nil {
+		if err != db.ErrNotFound {
+			// internal error
+			log.Error(err)
+		}
+	}
+	return user, err
 }

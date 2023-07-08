@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/go-github/github"
 	"io"
 	"net/url"
 	"os"
@@ -14,6 +13,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/google/go-github/github"
 
 	"github.com/gorilla/securecookie"
 )
@@ -93,6 +94,13 @@ type ConfigType struct {
 	LdapSearchDN     string       `json:"ldap_searchdn"`
 	LdapSearchFilter string       `json:"ldap_searchfilter"`
 	LdapMappings     ldapMappings `json:"ldap_mappings"`
+
+	// external-auth/forward-auth
+	ExternalAuth       bool `json:"external_auth"`
+	ExternalAuthHeader struct {
+		Username string `json:"username"`
+		Group    string `json:"group"`
+	} `json:"external_auth_header"`
 
 	// telegram alerting
 	TelegramChat  string `json:"telegram_chat"`
@@ -199,6 +207,7 @@ func loadConfig(configPath string) {
 func validateConfig() {
 
 	validatePort()
+	validateExternalAuth()
 
 	if len(Config.TmpPath) == 0 {
 		Config.TmpPath = "/tmp/semaphore"
@@ -206,6 +215,20 @@ func validateConfig() {
 
 	if Config.MaxParallelTasks < 1 {
 		Config.MaxParallelTasks = 10
+	}
+}
+
+func validateExternalAuth() {
+	if !Config.ExternalAuth {
+		return
+	}
+
+	if Config.ExternalAuthHeader.Username == "" {
+		Config.ExternalAuthHeader.Username = "X-Username"
+	}
+
+	if Config.ExternalAuthHeader.Group == "" {
+		Config.ExternalAuthHeader.Group = "X-Group"
 	}
 }
 

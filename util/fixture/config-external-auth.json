@@ -1,0 +1,7 @@
+{
+    "external_auth": true,
+    "external_auth_header": {
+        "username": "X-User",
+        "group": "X-Scope-OrgID"
+    }
+}
