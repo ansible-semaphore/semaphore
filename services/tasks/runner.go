@@ -256,6 +256,7 @@ func (t *TaskRunner) run() {
 		t.updateStatus()
 		t.createTaskEvent()
 		t.destroyKeys()
+		t.destroyInventoryFile()
 	}()
 
 	// TODO: more details
@@ -678,12 +679,9 @@ func (t *TaskRunner) getPlaybookArgs() (args []string, err error) {
 	case db.InventoryFile:
 		inventory = t.inventory.Inventory
 	case db.InventoryStatic, db.InventoryStaticYaml:
-		inventory = util.Config.TmpPath + "/inventory_" + strconv.Itoa(t.task.ID)
-		if t.inventory.Type == db.InventoryStaticYaml {
-			inventory += ".yml"
-		}
+		inventory = t.tmpInventoryFilename()
 	default:
-		err = fmt.Errorf("invalid invetory type")
+		err = fmt.Errorf("invalid inventory type")
 		return
 	}
 

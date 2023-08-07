@@ -1,9 +1,12 @@
 package tasks
 
 import (
-	"github.com/ansible-semaphore/semaphore/db"
 	"io/ioutil"
+	"os"
 	"strconv"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/ansible-semaphore/semaphore/db"
 
 	"github.com/ansible-semaphore/semaphore/util"
 )
@@ -32,12 +35,21 @@ func (t *TaskRunner) installInventory() (err error) {
 
 func (t *TaskRunner) installStaticInventory() error {
 	t.Log("installing static inventory")
+	// create inventory file
+	return ioutil.WriteFile(t.tmpInventoryFilename(), []byte(t.inventory.Inventory), 0664)
+}
 
+func (t *TaskRunner) tmpInventoryFilename() string {
 	path := util.Config.TmpPath + "/inventory_" + strconv.Itoa(t.task.ID)
 	if t.inventory.Type == db.InventoryStaticYaml {
 		path += ".yml"
 	}
+	return path
+}
 
-	// create inventory file
-	return ioutil.WriteFile(path, []byte(t.inventory.Inventory), 0664)
+func (t *TaskRunner) destroyInventoryFile() {
+	tmpFileName := t.tmpInventoryFilename()
+	if err := os.Remove(tmpFileName); err != nil {
+		log.Error(err)
+	}
 }
