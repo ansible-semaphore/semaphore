@@ -31,7 +31,12 @@ func getAuthMethod(r GitRepository) (transport.AuthMethod, error) {
 	if r.Repository.SSHKey.Type == db.AccessKeySSH {
 		var sshKeyBuff = r.Repository.SSHKey.SshKey.PrivateKey
 
-		publicKey, sshErr := ssh.NewPublicKeys("git", []byte(sshKeyBuff), r.Repository.SSHKey.SshKey.Passphrase)
+		if r.Repository.SSHKey.SshKey.Login == "" {
+			r.Repository.SSHKey.SshKey.Login = "git"
+		}
+
+		publicKey, sshErr := ssh.NewPublicKeys(r.Repository.SSHKey.SshKey.Login, []byte(sshKeyBuff), r.Repository.SSHKey.SshKey.Passphrase)
+
 		if sshErr != nil {
 			r.Logger.Log("Unable to creating ssh auth method")
 			return nil, sshErr
