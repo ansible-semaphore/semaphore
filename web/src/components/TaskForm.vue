@@ -52,6 +52,7 @@
       :hint="v.description"
       v-model="editedEnvironment[v.name]"
       :required="v.required"
+      :type="v.type === 'secret' ?'password' : 'text' "
       :rules="[
           val => !v.required || !!val || v.title + $t('isRequired'),
           val => !val || v.type !== 'int' || /^\d+$/.test(val) ||

@@ -122,6 +122,9 @@ export default {
       }, {
         id: 'int',
         name: 'Integer',
+      }, {
+        id: 'secret',
+        name: 'Secret',
       }],
     };
   },
