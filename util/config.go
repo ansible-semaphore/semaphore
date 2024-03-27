@@ -118,8 +118,7 @@ type ConfigType struct {
 	MySQL    DbConfig `json:"mysql"`
 	BoltDb   DbConfig `json:"bolt"`
 	Postgres DbConfig `json:"postgres"`
-
-	Dialect string `json:"dialect" default:"bolt" rule:"^mysql|bolt|postgres$" env:"SEMAPHORE_DB_DIALECT"`
+	Dialect  string   `json:"dialect" default:"bolt" rule:"^mysql|bolt|postgres$" env:"SEMAPHORE_DB_DIALECT"`
 
 	// Format `:port_num` eg, :3000
 	// if : is missing it will be corrected
@@ -167,16 +166,11 @@ type ConfigType struct {
 	LdapMappings     ldapMappings `json:"ldap_mappings"`
 	LdapNeedTLS      bool         `json:"ldap_needtls" env:"SEMAPHORE_LDAP_NEEDTLS"`
 
-	// Telegram, Slack, Rocket.Chat and Microsoft Teams alerting
-	TelegramAlert       bool   `json:"telegram_alert" env:"SEMAPHORE_TELEGRAM_ALERT"`
-	TelegramChat        string `json:"telegram_chat" env:"SEMAPHORE_TELEGRAM_CHAT"`
-	TelegramToken       string `json:"telegram_token" env:"SEMAPHORE_TELEGRAM_TOKEN"`
-	SlackAlert          bool   `json:"slack_alert" env:"SEMAPHORE_SLACK_ALERT"`
-	SlackUrl            string `json:"slack_url" env:"SEMAPHORE_SLACK_URL"`
-	RocketChatAlert     bool   `json:"rocketchat_alert" env:"SEMAPHORE_ROCKETCHAT_ALERT"`
-	RocketChatUrl       string `json:"rocketchat_url" env:"SEMAPHORE_ROCKETCHAT_URL"`
-	MicrosoftTeamsAlert bool   `json:"microsoft_teams_alert" env:"SEMAPHORE_MICROSOFT_TEAMS_ALERT"`
-	MicrosoftTeamsUrl   string `json:"microsoft_teams_url" env:"SEMAPHORE_MICROSOFT_TEAMS_URL"`
+	TelegramChat      string `json:"telegram_chat" env:"SEMAPHORE_TELEGRAM_CHAT"`
+	TelegramToken     string `json:"telegram_token" env:"SEMAPHORE_TELEGRAM_TOKEN"`
+	SlackUrl          string `json:"slack_url" env:"SEMAPHORE_SLACK_URL"`
+	RocketChatUrl     string `json:"rocketchat_url" env:"SEMAPHORE_ROCKETCHAT_URL"`
+	MicrosoftTeamsUrl string `json:"microsoft_teams_url" env:"SEMAPHORE_MICROSOFT_TEAMS_URL"`
 
 	// oidc settings
 	OidcProviders map[string]OidcProvider `json:"oidc_providers"`
@@ -186,17 +180,15 @@ type ConfigType struct {
 	// task concurrency
 	MaxParallelTasks int `json:"max_parallel_tasks" default:"10" rule:"^[0-9]{1,10}$" env:"SEMAPHORE_MAX_PARALLEL_TASKS"`
 
-	RunnerRegistrationToken string `json:"runner_registration_token" env:"SEMAPHORE_RUNNER_REGISTRATION_TOKEN"`
-
 	// feature switches
 	PasswordLoginDisable     bool `json:"password_login_disable" env:"SEMAPHORE_PASSWORD_LOGIN_DISABLED"`
 	NonAdminCanCreateProject bool `json:"non_admin_can_create_project" env:"SEMAPHORE_NON_ADMIN_CAN_CREATE_PROJECT"`
 
-	UseRemoteRunner bool `json:"use_remote_runner" env:"SEMAPHORE_USE_REMOTE_RUNNER"`
-
-	Runner RunnerSettings `json:"runner"`
-
 	GlobalIntegrationAlias string `json:"global_integration_alias"`
+
+	RunnerRegistrationToken string         `json:"runner_registration_token" env:"SEMAPHORE_RUNNER_REGISTRATION_TOKEN"`
+	UseRemoteRunner         bool           `json:"use_remote_runner" env:"SEMAPHORE_USE_REMOTE_RUNNER"`
+	Runner                  RunnerSettings `json:"runner"`
 }
 
 // Config exposes the application configuration storage for use in the application

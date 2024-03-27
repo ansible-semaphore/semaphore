@@ -58,24 +58,26 @@ func InteractiveSetup(conf *util.ConfigType) {
 		askValue("Mail sender address", "semaphore@localhost", &conf.EmailSender)
 	}
 
-	askConfirmation("Enable telegram alerts?", false, &conf.TelegramAlert)
-	if conf.TelegramAlert {
+	var enable bool
+
+	askConfirmation("Enable telegram alerts?", false, &enable)
+	if enable {
 		askValue("Telegram bot token (you can get it from @BotFather)", "", &conf.TelegramToken)
 		askValue("Telegram chat ID", "", &conf.TelegramChat)
 	}
 
-	askConfirmation("Enable slack alerts?", false, &conf.SlackAlert)
-	if conf.SlackAlert {
+	askConfirmation("Enable slack alerts?", false, &enable)
+	if enable {
 		askValue("Slack Webhook URL", "", &conf.SlackUrl)
 	}
 
-	askConfirmation("Enable Rocket.Chat alerts?", false, &conf.RocketChatAlert)
-	if conf.RocketChatAlert {
+	askConfirmation("Enable Rocket.Chat alerts?", false, &enable)
+	if enable {
 		askValue("Rocket.Chat Webhook URL", "", &conf.RocketChatUrl)
-	}	
+	}
 
-	askConfirmation("Enable Microsoft Team Channel alerts?", false, &conf.MicrosoftTeamsAlert)
-	if conf.MicrosoftTeamsAlert {
+	askConfirmation("Enable Microsoft Team Channel alerts?", false, &enable)
+	if enable {
 		askValue("Microsoft Teams Webhook URL", "", &conf.MicrosoftTeamsUrl)
 	}
 

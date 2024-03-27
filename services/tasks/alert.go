@@ -109,7 +109,7 @@ func (t *TaskRunner) sendMailAlert() {
 }
 
 func (t *TaskRunner) sendTelegramAlert() {
-	if !util.Config.TelegramAlert || !t.alert {
+	if util.Config.TelegramChat == "" || util.Config.TelegramToken == "" || !t.alert {
 		return
 	}
 
@@ -183,7 +183,7 @@ func (t *TaskRunner) sendTelegramAlert() {
 }
 
 func (t *TaskRunner) sendSlackAlert() {
-	if !util.Config.SlackAlert || !t.alert {
+	if util.Config.SlackUrl == "" || !t.alert {
 		return
 	}
 
@@ -242,7 +242,7 @@ func (t *TaskRunner) sendSlackAlert() {
 }
 
 func (t *TaskRunner) sendRocketChatAlert() {
-	if !util.Config.RocketChatAlert || !t.alert {
+	if util.Config.RocketChatUrl == "" || !t.alert {
 		return
 	}
 
@@ -301,7 +301,7 @@ func (t *TaskRunner) sendRocketChatAlert() {
 }
 
 func (t *TaskRunner) sendMicrosoftTeamsAlert() {
-	if !util.Config.MicrosoftTeamsAlert || !t.alert {
+	if util.Config.MicrosoftTeamsUrl == "" || !t.alert {
 		return
 	}
 
