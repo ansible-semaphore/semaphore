@@ -644,6 +644,8 @@ definitions:
         type: string
       environment:
         type: string
+      secret:
+        type: string
       limit:
         type: string
   TaskOutput:
