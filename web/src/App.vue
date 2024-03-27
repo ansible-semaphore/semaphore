@@ -613,6 +613,8 @@ import ChangePasswordForm from '@/components/ChangePasswordForm.vue';
 import EventBus from '@/event-bus';
 import socket from '@/socket';
 
+const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+
 const PROJECT_COLORS = [
   'red',
   'blue',
@@ -748,8 +750,10 @@ export default {
 
     darkMode(val) {
       this.$vuetify.theme.dark = val;
-      if (val) {
+      if (val && !prefersDarkMode.matches) {
         localStorage.setItem('darkMode', '1');
+      } else if (!val && prefersDarkMode.matches) {
+        localStorage.setItem('darkMode', '0');
       } else {
         localStorage.removeItem('darkMode');
       }
@@ -804,8 +808,17 @@ export default {
       return;
     }
 
-    if (localStorage.getItem('darkMode') === '1') {
-      this.darkMode = true;
+    const isDarkMode = localStorage.getItem('darkMode');
+    if (isDarkMode !== null) {
+      this.darkMode = isDarkMode === '1';
+    } else {
+      prefersDarkMode.addEventListener('change', (e) => {
+        this.darkMode = e.matches;
+      });
+
+      if (prefersDarkMode.matches && localStorage.getItem('darkMode') !== '0') {
+        this.darkMode = true;
+      }
     }
 
     try {
