@@ -137,6 +137,7 @@ export default {
   duration: '說明',
   stop: '停止',
   forceStop: '強制刪除',
+  confirmTask: '确认',
   deleteTeamMember: '刪除團隊成員',
   team2: '團隊',
   newTeamMember: '新增團隊成員',

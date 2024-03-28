@@ -137,6 +137,7 @@ export default {
   duration: '说明',
   stop: '停止',
   forceStop: '强制删除',
+  confirmTask: '确认',
   deleteTeamMember: '删除团队成员',
   team2: '团队',
   newTeamMember: '新增团队成员',

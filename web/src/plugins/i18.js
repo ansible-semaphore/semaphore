@@ -7,7 +7,7 @@ Vue.use(VueI18n);
 let locale = localStorage.getItem('lang');
 
 if (!locale) {
-  locale = navigator.language.split('-')[0];
+  locale = navigator.language.replace('-', '_').toLocaleLowerCase();
 }
 
 export default new VueI18n({
