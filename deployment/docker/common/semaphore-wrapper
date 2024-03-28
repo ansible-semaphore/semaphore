@@ -162,5 +162,13 @@ EOF
     echoerr "Run Semaphore with semaphore server --config ${SEMAPHORE_CONFIG_PATH}/config.json"
 fi
 
+# Install additional python requirements
+if [ -f "${SEMAPHORE_CONFIG_PATH}/requirements.txt" ]; then
+    echoerr "Installing additional python packages"
+    pip3 install --upgrade --user -r "${SEMAPHORE_CONFIG_PATH}/requirements.txt"
+else
+    echoerr "No additional python packages to install"
+fi
+
 # run our command
 exec "$@"

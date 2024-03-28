@@ -13,7 +13,7 @@ RUN ./deployment/docker/prod/bin/install ${TARGETOS} ${TARGETARCH}
 FROM alpine:3.18 as runner
 LABEL maintainer="Tom Whiston <tom.whiston@gmail.com>"
 
-RUN apk add --no-cache sshpass git curl ansible mysql-client openssh-client-default tini py3-aiohttp tzdata && \
+RUN apk add --no-cache sshpass git curl ansible mysql-client openssh-client-default tini py3-aiohttp tzdata py3-pip && \
     adduser -D -u 1001 -G root semaphore && \
     mkdir -p /tmp/semaphore && \
     mkdir -p /etc/semaphore && \
