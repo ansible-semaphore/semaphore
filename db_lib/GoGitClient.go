@@ -114,7 +114,9 @@ func (c GoGitClient) Pull(r GitRepository) error {
 	}
 
 	// Pull the latest changes from the origin remote and merge into the current branch
-	err = wt.Pull(&git.PullOptions{RemoteName: "origin", Auth: authMethod})
+	err = wt.Pull(&git.PullOptions{RemoteName: "origin", 
+				       Auth: authMethod, 
+				       RecurseSubmodules: git.DefaultSubmoduleRecursionDepth})
 	if err != nil && err != git.NoErrAlreadyUpToDate {
 		r.Logger.Log("Unable to pull latest changes")
 		return err
